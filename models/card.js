@@ -5,7 +5,7 @@ const cardSchema = new mongoose.Schema({
     type: String,
     required: {
       value: true,
-      message: 'Поле name является обязательным',
+      message: 'Поле "Имя" является обязательным',
     },
     minlength: [2, 'Минимальная длина 2 символа'],
     maxlength: [30, 'Максимальная длина 30 символов'],
@@ -14,7 +14,7 @@ const cardSchema = new mongoose.Schema({
     type: String,
     required: {
       value: true,
-      message: 'Поле link является обязательным',
+      message: 'Поле "Ссылка" является обязательным',
     },
   },
   owner: {
