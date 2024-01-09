@@ -12,6 +12,7 @@
   "author": "Evelina Melnikova",
   "license": "ISC",
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "eslint": "^8.54.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.29.0",
