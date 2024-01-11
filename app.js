@@ -3,7 +3,7 @@ const express = require('express');
 const { json } = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
-const { router } = require('./routes/root');
+const { router } = require('./routes/index');
 
 const { PORT = '3000', MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
 
