@@ -12,8 +12,8 @@ module.exports.getCards = async (req, res) => {
   try {
     const cards = await Card.find({});
     return res.status(HTTP_STATUS_OK).send(cards);
-  } catch (e) {
-    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: e.message });
+  } catch (error) {
+    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: error.message });
   }
 };
 
@@ -23,11 +23,11 @@ module.exports.createCard = async (req, res) => {
     const { name, link } = req.body;
     const card = await Card.create({ name, link, owner });
     return res.send(card);
-  } catch (e) {
-    if (e instanceof mongoose.Error.ValidationError) {
-      return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Ошибка валидации полей', ...e });
+  } catch (error) {
+    if (error instanceof mongoose.Error.ValidationError) {
+      return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Ошибка валидации полей', ...error });
     }
-    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: e.message });
+    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: error.message });
   }
 };
 
@@ -38,13 +38,13 @@ module.exports.deleteCardById = async (req, res) => {
       return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка не найдена' });
     }
     return res.send({ message: 'Карточка успешно удалена' });
-  } catch (e) {
-    if (e instanceof mongoose.Error.CastError) {
+  } catch (error) {
+    if (error instanceof mongoose.Error.CastError) {
       return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Передан невалидный ID' });
-    } if (e instanceof NotFoundError) {
-      return res.status(e.statusCode).send({ message: e.message });
+    } if (error instanceof NotFoundError) {
+      return res.status(error.statusCode).send({ message: error.message });
     }
-    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: e.message });
+    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: error.message });
   }
 };
 
@@ -59,13 +59,13 @@ module.exports.likeCard = async (req, res) => {
       return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка не найдена' });
     }
     return res.send({ message: 'Лайк успешно добавлен' });
-  } catch (e) {
-    if (e instanceof mongoose.Error.CastError) {
+  } catch (error) {
+    if (error instanceof mongoose.Error.CastError) {
       return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Передан невалидный ID' });
-    } if (e instanceof NotFoundError) {
-      return res.status(e.statusCode).send({ message: e.message });
+    } if (error instanceof NotFoundError) {
+      return res.status(error.statusCode).send({ message: error.message });
     }
-    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: e.message });
+    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: error.message });
   }
 };
 
@@ -80,12 +80,12 @@ module.exports.dislikeCard = async (req, res) => {
       return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка не найдена' });
     }
     return res.send({ message: 'Лайк успешно удалён' });
-  } catch (e) {
-    if (e instanceof mongoose.Error.CastError) {
+  } catch (error) {
+    if (error instanceof mongoose.Error.CastError) {
       return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Передан невалидный ID' });
-    } if (e instanceof NotFoundError) {
-      return res.status(e.statusCode).send({ message: e.message });
+    } if (error instanceof NotFoundError) {
+      return res.status(error.statusCode).send({ message: error.message });
     }
-    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: e.message });
+    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: error.message });
   }
 };
