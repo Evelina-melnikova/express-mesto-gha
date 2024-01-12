@@ -20,7 +20,7 @@ const getUserById = async (req, res) => {
     return res.status(HttpCodes.success).send(user);
   } catch (e) {
     switch (e.name) {
-      case 'CastError':
+      case 'validationError':
         return res.status(HttpCodes.notFoundId).send({ message: 'Передан невалидный ID' });
       case 'ErrorsProject':
         return res.status(e.statusCode).send({ message: e.message });
@@ -58,7 +58,7 @@ const updateUser = async (req, res) => {
       { name, about },
       { new: true, runValidators: true },
     );
-    return res.status(HttpCodes.create).send(upUserProfile);
+    return res.status(HttpCodes.success).send(upUserProfile);
   } catch (e) {
     switch (e.name) {
       case 'ValidationError':

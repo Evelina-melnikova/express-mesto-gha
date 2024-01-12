@@ -61,7 +61,7 @@ const likeCard = async (req, res) => {
     ).orFail(
       () => new ErrorsProject('Карточка по заданному ID не найдена'),
     );
-    return res.status(HttpCodes.create).send(like);
+    return res.status(HttpCodes.success).send(like);
   } catch (e) {
     switch (e.name) {
       case 'CastError':
