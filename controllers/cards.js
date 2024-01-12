@@ -10,6 +10,7 @@ async function getCards(req, res) {
     return res.status(HttpCodes.serverErr).send({ message: 'Ошибка на стороне сервера', error: e.message });
   }
 }
+
 const deleteCard = async (req, res) => {
   try {
     const { cardId } = req.params;
@@ -17,17 +18,17 @@ const deleteCard = async (req, res) => {
       () => new ErrorsProject('Карточка по заданному ID не найдена'),
     );
     return res.status(HttpCodes.success).send(card);
-  } catch (e) {
-    switch (e.name) {
+  } catch (error) {
+    switch (error.name) {
       case 'CastError':
         return res.status(HttpCodes.notFoundId).send({ message: 'Передан не валидный ID' });
       case 'ErrorsProject':
-        return res.status(e.statusCode).send(e.message);
+        return res.status(error.statusCode).send(error.message);
 
       default:
         return res
           .status(HttpCodes.serverErr)
-          .send({ message: 'Ошибка на стороне сервера', error: e.message });
+          .send({ message: 'Ошибка на стороне сервера', error: error.message });
     }
   }
 };
