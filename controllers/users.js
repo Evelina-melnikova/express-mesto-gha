@@ -1,9 +1,5 @@
-//* eslint-disable import/extensions */
 const User = require('../models/user');
-
 const ErrorsProject = require('../utils/errorsProject');
-
-// eslint-disable-next-line import/extensions
 const HttpCodes = require('../utils/constants');
 
 async function getUsers(req, res) {

@@ -5,8 +5,7 @@ const {
   deleteCard,
   likeCard,
   disLikeCard,
-// eslint-disable-next-line import/extensions
-} = require('../controllers/cards.js');
+} = require('../controllers/cards');
 
 const cardRouter = Router();
 cardRouter.get('/cards', getCards);
