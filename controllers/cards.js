@@ -1,10 +1,5 @@
-// eslint-disable-next-line import/extensions
 const Card = require('../models/card');
-
-// eslint-disable-next-line import/extensions
 const ErrorsProject = require('../utils/errorsProject');
-
-// eslint-disable-next-line import/extensions
 const HttpCodes = require('../utils/constants');
 
 async function getCards(req, res) {
