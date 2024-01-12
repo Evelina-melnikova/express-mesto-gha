@@ -1,13 +1,17 @@
+const {
+  HTTP_STATUS_BAD_REQUEST,
+  HTTP_STATUS_INTERNAL_SERVER_ERROR,
+} = require('http2').constants;
 const Card = require('../models/card');
-const ErrorsProject = require('../utils/errorsProject');
 const HttpCodes = require('../utils/constants');
+const ErrorsProject = require('../utils/errorsProject');
 
 async function getCards(req, res) {
   try {
     const cards = await Card.find({});
     return res.send(cards);
   } catch (e) {
-    return res.status(HttpCodes.serverErr).send({ message: 'Ошибка на стороне сервера', error: e.message });
+    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: e.message });
   }
 }
 
@@ -18,17 +22,15 @@ const deleteCard = async (req, res) => {
       () => new ErrorsProject('Карточка по заданному ID не найдена'),
     );
     return res.status(HttpCodes.success).send(card);
-  } catch (error) {
-    switch (error.name) {
+  } catch (e) {
+    switch (e.name) {
       case 'CastError':
-        return res.status(HttpCodes.notFoundId).send({ message: 'Передан не валидный ID' });
+        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Передан невалидный ID' });
       case 'ErrorsProject':
-        return res.status(error.statusCode).send(error.message);
+        return res.status(e.statusCode).send(e.message);
 
       default:
-        return res
-          .status(HttpCodes.serverErr)
-          .send({ message: 'Ошибка на стороне сервера', error: error.message });
+        return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: e.message });
     }
   }
 };
@@ -42,11 +44,11 @@ const createCard = async (req, res) => {
   } catch (e) {
     switch (e.name) {
       case 'ValidationError':
-        return res.status(HttpCodes.notFoundId).send({ message: 'Переданы не валидные данные' });
+        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Передан невалидный ID' });
 
       default:
         return res
-          .status(HttpCodes.serverErr)
+          .status(HttpCodes.serverError)
           .send({ message: 'Ошибка на стороне сервера', error: e.message });
     }
   }
@@ -65,14 +67,12 @@ const likeCard = async (req, res) => {
   } catch (e) {
     switch (e.name) {
       case 'CastError':
-        return res.status(HttpCodes.notFoundId).send({ message: 'Передан не валидный ID' });
+        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Передан невалидный ID' });
       case 'ErrorsProject':
         return res.status(e.statusCode).send(e.message);
 
       default:
-        return res
-          .status(HttpCodes.serverErr)
-          .send({ message: 'Ошибка на стороне сервера', error: e.message });
+        return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: e.message });
     }
   }
 };
@@ -90,14 +90,12 @@ const disLikeCard = async (req, res) => {
   } catch (e) {
     switch (e.name) {
       case 'CastError':
-        return res.status(HttpCodes.notFoundId).send({ message: 'Передан не валидный ID' });
+        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Передан невалидный ID' });
       case 'ErrorsProject':
         return res.status(e.statusCode).send(e.message);
 
       default:
-        return res
-          .status(HttpCodes.serverErr)
-          .send({ message: 'Ошибка на стороне сервера', error: e.message });
+        return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: e.message });
     }
   }
 };

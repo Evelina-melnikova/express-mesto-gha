@@ -1,3 +1,7 @@
+const {
+  HTTP_STATUS_BAD_REQUEST,
+  HTTP_STATUS_INTERNAL_SERVER_ERROR,
+} = require('http2').constants;
 const User = require('../models/user');
 const ErrorsProject = require('../utils/errorsProject');
 const HttpCodes = require('../utils/constants');
@@ -7,7 +11,7 @@ async function getUsers(req, res) {
     const users = await User.find({});
     return res.send(users);
   } catch (e) {
-    return res.status(HttpCodes.serverErr).send({ message: 'Ошибка на стороне сервера', error: e.message });
+    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: e.message });
   }
 }
 
@@ -21,14 +25,12 @@ const getUserById = async (req, res) => {
   } catch (e) {
     switch (e.name) {
       case 'CastError':
-        return res.status(HttpCodes.notFoundId).send({ message: 'Передан не валидный ID' });
+        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Передан невалидный ID' });
       case 'ErrorsProject':
         return res.status(e.statusCode).send({ message: e.message });
 
       default:
-        return res
-          .status(HttpCodes.serverErr)
-          .send({ message: 'Ошибка на стороне сервера', error: e.message });
+        return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: e.message });
     }
   }
 };
@@ -40,12 +42,10 @@ const createUser = async (req, res) => {
   } catch (e) {
     switch (e.name) {
       case 'ValidationError':
-        return res.status(HttpCodes.notFoundId).send({ message: 'Переданы не валидные данные' });
+        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Ошибка валидации полей', ...e });
 
       default:
-        return res
-          .status(HttpCodes.serverErr)
-          .send({ message: 'Ошибка на стороне сервера', error: e.message });
+        return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: e.message });
     }
   }
 };
@@ -62,14 +62,12 @@ const updateUser = async (req, res) => {
   } catch (e) {
     switch (e.name) {
       case 'ValidationError':
-        return res.status(HttpCodes.notFoundId).send({ message: 'Переданы не валидные данные' });
+        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Ошибка валидации полей', ...e });
       case 'ErrorsProject':
         return res.status(e.statusCode).send(e.message);
 
       default:
-        return res
-          .status(HttpCodes.serverErr)
-          .send({ message: 'Ошибка на стороне сервера', error: e.message });
+        return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: e.message });
     }
   }
 };
@@ -86,14 +84,12 @@ const updateUserAvatar = async (req, res) => {
   } catch (e) {
     switch (e.name) {
       case 'ValidationError':
-        return res.status(HttpCodes.notFoundId).send({ message: 'Переданы не валидные данные' });
+        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Ошибка валидации полей', ...e });
       case 'ErrorsProject':
         return res.status(e.statusCode).send(e.message);
 
       default:
-        return res
-          .status(HttpCodes.serverErr)
-          .send({ message: 'Ошибка на стороне сервера', error: e.message });
+        return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: e.message });
     }
   }
 };
