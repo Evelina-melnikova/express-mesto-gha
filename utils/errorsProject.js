@@ -5,6 +5,6 @@ module.exports = class ErrorsProject extends Error {
   constructor(message) {
     super(message);
     this.name = 'ErrorsProject';
-    this.statusCode = HttpCodes.notFoundErr;
+    this.statusCode = HttpCodes.notFoundError;
   }
 };

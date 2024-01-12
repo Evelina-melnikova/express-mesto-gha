@@ -5,8 +5,7 @@ const {
   createUser,
   updateUser,
   updateUserAvatar,
-// eslint-disable-next-line import/extensions
-} = require('../controllers/users.js');
+} = require('../controllers/users');
 
 const userRouter = Router();
 userRouter.get('/users', getUsers);
