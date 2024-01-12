@@ -1,12 +1,18 @@
-const userRouter = require('express').Router();
+const Router = require('express');
 const {
-  getUsers, getUserById, createUser, updateUserData, updateUserAvatar,
-} = require('../controllers/users');
+  getUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  updateUserAvatar,
+// eslint-disable-next-line import/extensions
+} = require('../controllers/users.js');
 
-userRouter.get('/', getUsers);
-userRouter.get('/:id', getUserById);
-userRouter.post('/', createUser);
-userRouter.patch('/me', updateUserData);
-userRouter.patch('/me/avatar', updateUserAvatar);
+const userRouter = Router();
+userRouter.get('/users', getUsers);
+userRouter.get('/users/:userId', getUserById);
+userRouter.post('/users', createUser);
+userRouter.patch('/users/me', updateUser);
+userRouter.patch('/users/me/avatar', updateUserAvatar);
 
-module.exports = { userRouter };
+module.exports = userRouter;

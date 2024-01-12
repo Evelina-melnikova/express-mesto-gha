@@ -1,70 +1,110 @@
-const {
-  HTTP_STATUS_OK,
-  HTTP_STATUS_CREATED,
-  HTTP_STATUS_BAD_REQUEST,
-  HTTP_STATUS_INTERNAL_SERVER_ERROR,
-} = require('http2').constants;
-const mongoose = require('mongoose');
+//* eslint-disable import/extensions */
 const User = require('../models/user');
-const { NotFoundError } = require('../utils/not-found-error');
-const { updateUser } = require('../utils/update-user');
 
-module.exports.getUsers = async (req, res) => {
+const ErrorsProject = require('../utils/errorsProject');
+
+// eslint-disable-next-line import/extensions
+const HttpCodes = require('../utils/constants');
+
+async function getUsers(req, res) {
   try {
     const users = await User.find({});
-    return res.status(HTTP_STATUS_OK).send(users);
+    return res.send(users);
   } catch (e) {
-    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: e.message });
+    return res.status(HttpCodes.serverErr).send({ message: 'Ошибка на стороне сервера', error: e.message });
   }
-};
+}
 
-module.exports.getUserById = async (req, res) => {
+const getUserById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const user = await User.findById(id).orFail(() => new NotFoundError({ message: 'Пользователь по указанному ID не найден' }));
-    return res.status(HTTP_STATUS_OK).send(user);
+    const { userId } = req.params;
+    const user = await User.findById(userId).orFail(
+      () => new ErrorsProject('Пользователь по заданному ID не найден'),
+    );
+    return res.status(HttpCodes.success).send(user);
   } catch (e) {
-    if (e instanceof mongoose.Error.CastError) {
-      return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Передан невалидный ID' });
-    } if (e instanceof NotFoundError) {
-      return res.status(e.statusCode).send({ message: e.message });
+    switch (e.name) {
+      case 'CastError':
+        return res.status(HttpCodes.notFoundId).send({ message: 'Передан не валидный ID' });
+      case 'ErrorsProject':
+        return res.status(e.statusCode).send({ message: e.message });
+
+      default:
+        return res
+          .status(HttpCodes.serverErr)
+          .send({ message: 'Ошибка на стороне сервера', error: e.message });
     }
-    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: e.message });
   }
 };
 
-module.exports.createUser = async (req, res) => {
+const createUser = async (req, res) => {
   try {
     const newUser = await User.create(req.body);
-    return res.status(HTTP_STATUS_CREATED).send(newUser);
+    return res.status(HttpCodes.create).send(newUser);
   } catch (e) {
-    if (e instanceof mongoose.Error.ValidationError) {
-      return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Ошибка валидации полей', ...e });
+    switch (e.name) {
+      case 'ValidationError':
+        return res.status(HttpCodes.notFoundId).send({ message: 'Переданы не валидные данные' });
+
+      default:
+        return res
+          .status(HttpCodes.serverErr)
+          .send({ message: 'Ошибка на стороне сервера', error: e.message });
     }
-    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: e.message });
   }
 };
 
-module.exports.updateUserData = async (req, res) => {
+const updateUser = async (req, res) => {
   try {
     const { name, about } = req.body;
-    const updatedUser = await updateUser(req.user._id, { name, about });
-    return res.status(HTTP_STATUS_OK).send(updatedUser);
+    const upUserProfile = await User.findByIdAndUpdate(
+      req.user._id,
+      { name, about },
+      { new: true, runValidators: true },
+    );
+    return res.status(HttpCodes.create).send(upUserProfile);
   } catch (e) {
-    if (e instanceof mongoose.Error.ValidationError) {
-      return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Ошибка валидации полей', ...e });
-    } return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: e.message });
+    switch (e.name) {
+      case 'ValidationError':
+        return res.status(HttpCodes.notFoundId).send({ message: 'Переданы не валидные данные' });
+      case 'ErrorsProject':
+        return res.status(e.statusCode).send(e.message);
+
+      default:
+        return res
+          .status(HttpCodes.serverErr)
+          .send({ message: 'Ошибка на стороне сервера', error: e.message });
+    }
   }
 };
 
-module.exports.updateUserAvatar = async (req, res) => {
+const updateUserAvatar = async (req, res) => {
   try {
     const { avatar } = req.body;
-    await updateUser(req.user._id, { avatar });
-    return res.status(HTTP_STATUS_OK).send({ message: 'Аватар успешно обновлён' });
+    const upUserAvatr = await User.findByIdAndUpdate(
+      req.user._id,
+      { avatar },
+      { new: true, runValidators: true },
+    );
+    return res.status(HttpCodes.create).send(upUserAvatr);
   } catch (e) {
-    if (e instanceof mongoose.Error.ValidationError) {
-      return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Ошибка валидации полей', ...e });
-    } return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: e.message });
+    switch (e.name) {
+      case 'ValidationError':
+        return res.status(HttpCodes.notFoundId).send({ message: 'Переданы не валидные данные' });
+      case 'ErrorsProject':
+        return res.status(e.statusCode).send(e.message);
+
+      default:
+        return res
+          .status(HttpCodes.serverErr)
+          .send({ message: 'Ошибка на стороне сервера', error: e.message });
+    }
   }
+};
+module.exports = {
+  getUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  updateUserAvatar,
 };

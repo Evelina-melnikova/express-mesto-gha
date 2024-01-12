@@ -1,12 +1,18 @@
-const cardRouter = require('express').Router();
+const Router = require('express');
 const {
-  getCards, createCard, deleteCardById, likeCard, dislikeCard,
-} = require('../controllers/cards');
+  getCards,
+  createCard,
+  deleteCard,
+  likeCard,
+  disLikeCard,
+// eslint-disable-next-line import/extensions
+} = require('../controllers/cards.js');
 
-cardRouter.get('/', getCards);
-cardRouter.post('/', createCard);
-cardRouter.delete('/:id', deleteCardById);
-cardRouter.put('/:id/likes', likeCard);
-cardRouter.delete('/:id/likes', dislikeCard);
+const cardRouter = Router();
+cardRouter.get('/cards', getCards);
+cardRouter.post('/cards', createCard);
+cardRouter.delete('/cards/:cardId', deleteCard);
+cardRouter.put('/cards/:cardId/likes', likeCard);
+cardRouter.delete('/cards/:cardId/likes', disLikeCard);
 
-module.exports = { cardRouter };
+module.exports = cardRouter;

@@ -1,91 +1,115 @@
-const {
-  HTTP_STATUS_OK,
-  HTTP_STATUS_BAD_REQUEST,
-  HTTP_STATUS_NOT_FOUND,
-  HTTP_STATUS_INTERNAL_SERVER_ERROR,
-} = require('http2').constants;
-const mongoose = require('mongoose');
+// eslint-disable-next-line import/extensions
 const Card = require('../models/card');
-const { NotFoundError } = require('../utils/not-found-error');
 
-module.exports.getCards = async (req, res) => {
+// eslint-disable-next-line import/extensions
+const ErrorsProject = require('../utils/errorsProject');
+
+// eslint-disable-next-line import/extensions
+const HttpCodes = require('../utils/constants');
+
+async function getCards(req, res) {
   try {
     const cards = await Card.find({});
-    return res.status(HTTP_STATUS_OK).send(cards);
-  } catch (error) {
-    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: error.message });
+    return res.send(cards);
+  } catch (e) {
+    return res.status(HttpCodes.serverErr).send({ message: 'Ошибка на стороне сервера', error: e.message });
+  }
+}
+const deleteCard = async (req, res) => {
+  try {
+    const { cardId } = req.params;
+    const card = await Card.findById(cardId).orFail(
+      () => new ErrorsProject('Карточка по заданному ID не найдена'),
+    );
+    return res.status(HttpCodes.success).send(card);
+  } catch (e) {
+    switch (e.name) {
+      case 'CastError':
+        return res.status(HttpCodes.notFoundId).send({ message: 'Передан не валидный ID' });
+      case 'ErrorsProject':
+        return res.status(e.statusCode).send(e.message);
+
+      default:
+        return res
+          .status(HttpCodes.serverErr)
+          .send({ message: 'Ошибка на стороне сервера', error: e.message });
+    }
   }
 };
 
-module.exports.createCard = async (req, res) => {
+const createCard = async (req, res) => {
   try {
-    const owner = req.user._id;
     const { name, link } = req.body;
-    const card = await Card.create({ name, link, owner });
-    return res.send(card);
-  } catch (error) {
-    if (error instanceof mongoose.Error.ValidationError) {
-      return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Ошибка валидации полей', ...error });
+    const owner = req.user._id;
+    const newCard = await Card.create({ name, link, owner });
+    return res.status(HttpCodes.create).send(newCard);
+  } catch (e) {
+    switch (e.name) {
+      case 'ValidationError':
+        return res.status(HttpCodes.notFoundId).send({ message: 'Переданы не валидные данные' });
+
+      default:
+        return res
+          .status(HttpCodes.serverErr)
+          .send({ message: 'Ошибка на стороне сервера', error: e.message });
     }
-    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: error.message });
   }
 };
 
-module.exports.deleteCardById = async (req, res) => {
+const likeCard = async (req, res) => {
   try {
-    const cardDelete = await Card.findByIdAndDelete(req.params.id);
-    if (!cardDelete) {
-      return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка не найдена' });
-    }
-    return res.send({ message: 'Карточка успешно удалена' });
-  } catch (error) {
-    if (error instanceof mongoose.Error.CastError) {
-      return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Передан невалидный ID' });
-    } if (error instanceof NotFoundError) {
-      return res.status(error.statusCode).send({ message: error.message });
-    }
-    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: error.message });
-  }
-};
-
-module.exports.likeCard = async (req, res) => {
-  try {
-    const cardLike = await Card.findByIdAndUpdate(
-      req.params.id,
+    const like = await Card.findByIdAndUpdate(
+      req.params.cardId,
       { $addToSet: { likes: req.user._id } },
       { new: true },
+    ).orFail(
+      () => new ErrorsProject('Карточка по заданному ID не найдена'),
     );
-    if (!cardLike) {
-      return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка не найдена' });
+    return res.status(HttpCodes.create).send(like);
+  } catch (e) {
+    switch (e.name) {
+      case 'CastError':
+        return res.status(HttpCodes.notFoundId).send({ message: 'Передан не валидный ID' });
+      case 'ErrorsProject':
+        return res.status(e.statusCode).send(e.message);
+
+      default:
+        return res
+          .status(HttpCodes.serverErr)
+          .send({ message: 'Ошибка на стороне сервера', error: e.message });
     }
-    return res.send({ message: 'Лайк успешно добавлен' });
-  } catch (error) {
-    if (error instanceof mongoose.Error.CastError) {
-      return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Передан невалидный ID' });
-    } if (error instanceof NotFoundError) {
-      return res.status(error.statusCode).send({ message: error.message });
-    }
-    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: error.message });
   }
 };
 
-module.exports.dislikeCard = async (req, res) => {
+const disLikeCard = async (req, res) => {
   try {
-    const cardDislike = await Card.findByIdAndUpdate(
-      req.params.id,
+    const like = await Card.findByIdAndUpdate(
+      req.params.cardId,
       { $pull: { likes: req.user._id } },
       { new: true },
+    ).orFail(
+      () => new ErrorsProject('Карточка по заданному ID не найдена'),
     );
-    if (!cardDislike) {
-      return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка не найдена' });
+    return res.status(HttpCodes.create).send(like);
+  } catch (e) {
+    switch (e.name) {
+      case 'CastError':
+        return res.status(HttpCodes.notFoundId).send({ message: 'Передан не валидный ID' });
+      case 'ErrorsProject':
+        return res.status(e.statusCode).send(e.message);
+
+      default:
+        return res
+          .status(HttpCodes.serverErr)
+          .send({ message: 'Ошибка на стороне сервера', error: e.message });
     }
-    return res.send({ message: 'Лайк успешно удалён' });
-  } catch (error) {
-    if (error instanceof mongoose.Error.CastError) {
-      return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Передан невалидный ID' });
-    } if (error instanceof NotFoundError) {
-      return res.status(error.statusCode).send({ message: error.message });
-    }
-    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: error.message });
   }
+};
+
+module.exports = {
+  getCards,
+  createCard,
+  deleteCard,
+  likeCard,
+  disLikeCard,
 };
