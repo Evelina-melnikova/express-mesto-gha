@@ -1,4 +1,4 @@
-// eslint-disable-next-line import/no-unresolved
+/* eslint-disable import/no-extraneous-dependencies */
 const jwt = require('jsonwebtoken');
 
 // eslint-disable-next-line import/extensions, import/no-unresolved
