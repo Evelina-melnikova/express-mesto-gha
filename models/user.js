@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
-// eslint-disable-next-line import/no-unresolved, no-unused-vars
+
+// eslint-disable-next-line import/no-extraneous-dependencies, no-unused-vars
 const validator = require('validator');
+
 const { regexUrl, regexEmail } = require('../utils/regex');
 
 const userSchema = new mongoose.Schema(

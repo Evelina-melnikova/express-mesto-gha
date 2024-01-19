@@ -35,15 +35,15 @@ const signInJoi = {
   }),
 };
 
-const upAvatarJoi = {
-  body: Joi.object().keys({
-    avatar: Joi.string().pattern(regexUrl),
-  }),
-};
-
 const userIdJoi = {
   params: Joi.object().keys({
     userId: Joi.string().length(24).hex().required(),
+  }),
+};
+
+const updateAvatarJoi = {
+  body: Joi.object().keys({
+    avatar: Joi.string().pattern(regexUrl),
   }),
 };
 
@@ -52,6 +52,6 @@ module.exports = {
   cardIdJoi,
   signUpJoi,
   signInJoi,
-  upAvatarJoi,
   userIdJoi,
+  updateAvatarJoi,
 };

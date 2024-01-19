@@ -2,7 +2,7 @@
 const jwt = require('jsonwebtoken');
 
 // eslint-disable-next-line import/extensions, import/no-unresolved
-const NotAuthorizate = require('../utils/NotAuthorizate');
+const AuthorizateError = require('../utils/authorizateError');
 
 // eslint-disable-next-line func-names, consistent-return
 module.exports = function (req, res, next) {
@@ -10,13 +10,13 @@ module.exports = function (req, res, next) {
   try {
     const token = req.headers.authorization;
     if (!token) {
-      throw new NotAuthorizate('С токеном что-то не так');
+      throw new AuthorizateError('С токеном что-то не так');
     }
     const validToken = token.replace('Bearer ', '');
     // eslint-disable-next-line no-unused-vars
     payload = jwt.verify(validToken, 'dev_secret');
   } catch (error) {
-    next(new NotAuthorizate('С токеном что-то не так'));
+    next(new AuthorizateError('С токеном что-то не так'));
   }
   req.user = payload;
   next();
