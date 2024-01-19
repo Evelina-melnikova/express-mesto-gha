@@ -8,6 +8,9 @@ const {
 } = require('../controllers/cards');
 
 const cardRouter = Router();
+// eslint-disable-next-line no-unused-vars, import/no-unresolved, import/extensions
+const { createCardJoi, cardIdJoi } = require('../joi/joi');
+
 cardRouter.get('/cards', getCards);
 cardRouter.post('/cards', createCard);
 cardRouter.delete('/cards/:cardId', deleteCard);

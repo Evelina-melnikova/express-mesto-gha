@@ -1,100 +1,127 @@
+/* eslint-disable import/no-unresolved */
 const Card = require('../models/card');
 const HttpCodes = require('../utils/constants');
-const ErrorsProject = require('../utils/errorsProject');
 
-async function getCards(req, res) {
+// eslint-disable-next-line import/extensions, no-unused-vars
+const NotDelete = require('../utils/NotDelete');
+// eslint-disable-next-line import/no-unresolved, import/extensions, no-unused-vars
+const NotValidIdError = require('../utils/NotValidIdError.js');
+// eslint-disable-next-line import/extensions, no-unused-vars
+const NotFoundError = require('../utils/NotFoundError.js');
+
+// eslint-disable-next-line consistent-return
+async function getCards(req, res, next) {
   try {
     const cards = await Card.find({});
     return res.send(cards);
   } catch (e) {
-    return res.status(HttpCodes.serverError).send({ message: 'Ошибка на стороне сервера', error: e.message });
+    // eslint-disable-next-line no-undef
+    next(e);
   }
 }
 
-const deleteCard = async (req, res) => {
-  try {
-    const { cardId } = req.params;
-    const card = await Card.findById(cardId).orFail(
-      () => new ErrorsProject('Карточка по заданному ID не найдена'),
-    );
-    return res.status(HttpCodes.success).send(card);
-  } catch (error) {
-    switch (error.name) {
-      case 'CastError':
-        return res.status(HttpCodes.notFoundId).send({ message: 'Передан не валидный ID' });
-      case 'ErrorsProject':
-        return res.status(error.statusCode).send(error.message);
-
-      default:
-        return res
-          .status(HttpCodes.serverError)
-          .send({ message: 'Ошибка на стороне сервера', error: error.message });
-    }
-  }
-};
-
-const createCard = async (req, res) => {
+// eslint-disable-next-line consistent-return
+const createCard = async (req, res, next) => {
   try {
     const { name, link } = req.body;
     const owner = req.user._id;
     const newCard = await Card.create({ name, link, owner });
     return res.status(HttpCodes.create).send(newCard);
   } catch (e) {
-    switch (e.name) {
-      case 'ValidationError':
-        return res.status(HttpCodes.notFoundId).send({ message: 'Переданы не валидные данные' });
-
-      default:
-        return res
-          .status(HttpCodes.serverError)
-          .send({ message: 'Ошибка на стороне сервера', error: e.message });
+    if (e.name === 'ValidationError') {
+      next(new NotValidIdError('Переданы не валидные данные'));
+      // eslint-disable-next-line consistent-return
+      return;
     }
+    next(e);
   }
 };
 
-const likeCard = async (req, res) => {
+const deleteCard = async (req, res, next) => {
+  try {
+    const { cardId } = req.params;
+    await Card.findById(cardId).orFail(
+      () => new NotFoundError('Карточка по заданному ID не найдена'),
+    )
+      // eslint-disable-next-line no-shadow, consistent-return
+      .then((card) => {
+        if (card.owner._id.toString() === req.user._id.toString()) {
+          // eslint-disable-next-line max-len, no-shadow
+          return Card.findByIdAndDelete(cardId)
+            // eslint-disable-next-line no-shadow
+            .then((card) => res.status(HttpCodes.success).send(card));
+          // eslint-disable-next-line no-else-return
+        } else {
+          return next(new NotDelete('У Вас нет прав на удаление данной карточки'));
+        }
+      });
+  } catch (e) {
+    if (e.name === 'NotFoundError') {
+      // eslint-disable-next-line no-undef
+      next(new NotFoundError('Карточка по заданному ID не найдена'));
+      // eslint-disable-next-line consistent-return
+      return;
+    }
+    if (e.name === 'CastError') {
+      next(new NotValidIdError('Передан не валидный ID'));
+      // eslint-disable-next-line consistent-return
+      return;
+    }
+    next(e);
+  }
+};
+
+// eslint-disable-next-line consistent-return
+const likeCard = async (req, res, next) => {
   try {
     const like = await Card.findByIdAndUpdate(
       req.params.cardId,
       { $addToSet: { likes: req.user._id } },
       { new: true },
     ).orFail(
-      () => new ErrorsProject('Карточка по заданному ID не найдена'),
+      () => new NotFoundError('Карточка по заданному ID не найдена'),
     );
     return res.status(HttpCodes.success).send(like);
   } catch (e) {
-    switch (e.name) {
-      case 'CastError':
-        return res.status(HttpCodes.notFoundId).send({ message: 'Передан не валидный ID' });
-      case 'ErrorsProject':
-        return res.status(e.statusCode).send(e.message);
-
-      default:
-        return res.status(HttpCodes.serverError).send({ message: 'Ошибка на стороне сервера', error: e.message });
+    if (e.name === 'NotFoundError') {
+      // eslint-disable-next-line no-undef
+      next(new NotFoundError('Карточка по заданному ID не найдена'));
+      // eslint-disable-next-line consistent-return
+      return;
     }
+    if (e.name === 'CastError') {
+      next(new NotValidIdError('Передан не валидный ID'));
+      // eslint-disable-next-line consistent-return
+      return;
+    }
+    next(e);
   }
 };
 
-const disLikeCard = async (req, res) => {
+// eslint-disable-next-line consistent-return
+const disLikeCard = async (req, res, next) => {
   try {
     const like = await Card.findByIdAndUpdate(
       req.params.cardId,
       { $pull: { likes: req.user._id } },
       { new: true },
     ).orFail(
-      () => new ErrorsProject('Карточка по заданному ID не найдена'),
+      () => new NotFoundError('Карточка по заданному ID не найдена'),
     );
     return res.status(HttpCodes.create).send(like);
-  } catch (e) {
-    switch (e.name) {
-      case 'CastError':
-        return res.status(HttpCodes.notFoundId).send({ message: 'Передан не валидный ID' });
-      case 'ErrorsProject':
-        return res.status(e.statusCode).send(e.message);
-
-      default:
-        return res.status(HttpCodes.serverError).send({ message: 'Ошибка на стороне сервера', error: e.message });
+  } catch (error) {
+    if (error.name === 'NotFoundError') {
+      // eslint-disable-next-line no-undef
+      next(new NotFoundError('Карточка по заданному ID не найдена'));
+      // eslint-disable-next-line consistent-return
+      return;
     }
+    if (error.name === 'CastError') {
+      next(new NotValidIdError('Передан не валидный ID'));
+      // eslint-disable-next-line consistent-return
+      return;
+    }
+    next(error);
   }
 };
 
