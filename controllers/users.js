@@ -98,7 +98,7 @@ const updateUserAvatar = async (req, res, next) => {
       { avatar },
       { new: true, runValidators: true },
     );
-    return res.status(HttpCodes.create).send(updateUserAvatr);
+    return res.status(HttpCodes.success).send(updateUserAvatr);
   } catch (e) {
     if (e.name === 'ValidationError') {
       next(new NotValidIdError('Переданы не валидные данные'));

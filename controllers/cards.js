@@ -102,7 +102,7 @@ const disLikeCard = async (req, res, next) => {
     ).orFail(
       () => new NotFoundError('Карточка по заданному ID не найдена'),
     );
-    return res.status(HttpCodes.create).send(like);
+    return res.status(HttpCodes.success).send(like);
   } catch (error) {
     if (error.name === 'NotFoundError') {
       next(new NotFoundError('Карточка по заданному ID не найдена'));
