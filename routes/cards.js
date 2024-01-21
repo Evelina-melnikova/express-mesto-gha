@@ -1,4 +1,5 @@
 const Router = require('express');
+const { celebrate } = require('celebrate');
 const {
   getCards,
   createCard,
@@ -8,13 +9,12 @@ const {
 } = require('../controllers/cards');
 
 const cardRouter = Router();
-// eslint-disable-next-line no-unused-vars, import/no-unresolved, import/extensions
 const { createCardJoi, cardIdJoi } = require('../joi/joi');
 
 cardRouter.get('/cards', getCards);
-cardRouter.post('/cards', createCard);
-cardRouter.delete('/cards/:cardId', deleteCard);
-cardRouter.put('/cards/:cardId/likes', likeCard);
-cardRouter.delete('/cards/:cardId/likes', disLikeCard);
+cardRouter.post('/cards', celebrate(createCardJoi), createCard);
+cardRouter.delete('/cards/:cardId', celebrate(cardIdJoi), deleteCard);
+cardRouter.put('/cards/:cardId/likes', celebrate(cardIdJoi), likeCard);
+cardRouter.delete('/cards/:cardId/likes', celebrate(cardIdJoi), disLikeCard);
 
 module.exports = cardRouter;

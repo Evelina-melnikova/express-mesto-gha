@@ -1,10 +1,9 @@
 /* eslint-disable import/no-extraneous-dependencies */
 const jwt = require('jsonwebtoken');
 
-// eslint-disable-next-line import/extensions, import/no-unresolved
 const AuthorizateError = require('../utils/authorizateError');
 
-// eslint-disable-next-line func-names, consistent-return
+// eslint-disable-next-line func-names
 module.exports = function (req, res, next) {
   let payload;
   try {
@@ -13,7 +12,6 @@ module.exports = function (req, res, next) {
       throw new AuthorizateError('С токеном что-то не так');
     }
     const validToken = token.replace('Bearer ', '');
-    // eslint-disable-next-line no-unused-vars
     payload = jwt.verify(validToken, 'dev_secret');
   } catch (error) {
     next(new AuthorizateError('С токеном что-то не так'));

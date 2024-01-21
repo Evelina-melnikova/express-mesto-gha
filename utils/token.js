@@ -1,12 +1,8 @@
-/* eslint-disable no-undef */
-const TOKEN_KEY = 'jwt';
+/* eslint-disable import/no-extraneous-dependencies */
+const jwt = require('jsonwebtoken');
 
-export const setToken = (token) => {
-  localStorage.setItem(TOKEN_KEY, token);
-};
+const generateToken = (payload) => jwt.sign(payload, 'dev_secret', {
+  expiresIn: 1209600,
+});
 
-export const getToken = () => localStorage.getItem(TOKEN_KEY);
-
-export const removeToken = () => {
-  localStorage.removeItem(TOKEN_KEY);
-};
+module.exports = generateToken;

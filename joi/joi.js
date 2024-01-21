@@ -2,8 +2,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 const { Joi } = require('celebrate');
 
-// eslint-disable-next-line import/extensions
-const { regexUrl } = require('../utils/regex.js');
+const { regexUrl } = require('../utils/regex');
 
 const createCardJoi = {
   body: Joi.object().keys({
@@ -47,6 +46,13 @@ const updateAvatarJoi = {
   }),
 };
 
+const updateUserJoi = {
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    email: Joi.string().email(),
+  }),
+};
+
 module.exports = {
   createCardJoi,
   cardIdJoi,
@@ -54,4 +60,5 @@ module.exports = {
   signInJoi,
   userIdJoi,
   updateAvatarJoi,
+  updateUserJoi,
 };

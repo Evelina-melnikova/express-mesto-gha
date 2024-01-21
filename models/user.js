@@ -12,8 +12,8 @@ const userSchema = new mongoose.Schema(
       required: {
         value: true,
         message: 'Поле "Имя" является обязательным',
-        default: 'Жак-Ив Кусто',
       },
+      default: 'Жак-Ив Кусто',
       minlength: [2, 'Минимальная длина 2 символа'],
       maxlength: [30, 'Максимальная длина 30 символов'],
     },
@@ -22,8 +22,8 @@ const userSchema = new mongoose.Schema(
       required: {
         value: true,
         message: 'Поле "О себе" является обязательным',
-        default: 'Исследователь',
       },
+      default: 'Исследователь',
       minlength: [2, 'Минимальная длина 2 символа'],
       maxlength: [30, 'Максимальная длина 30 символов'],
     },
@@ -32,11 +32,11 @@ const userSchema = new mongoose.Schema(
       required: {
         value: true,
         message: 'Поле "Аватар" является обязательным',
-        default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
         validate: {
           validator: (url) => regexUrl.test(url), message: 'Введен некорректный адрес ссылки',
         },
       },
+      default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
       minlength: [5, 'Минимальная длина 5 символа'],
     },
     email: {

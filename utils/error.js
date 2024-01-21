@@ -1,8 +1,7 @@
 /* eslint-disable indent */
 /* eslint-disable eol-last */
 module.exports = ((e, req, res, next) => {
-    // eslint-disable-next-line no-undef
-    const { statusCode = 500 } = err;
+    const { statusCode = 500 } = e;
 
     res
         .status(statusCode)

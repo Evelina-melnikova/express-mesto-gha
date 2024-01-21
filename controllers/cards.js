@@ -2,12 +2,9 @@
 const Card = require('../models/card');
 const HttpCodes = require('../utils/constants');
 
-// eslint-disable-next-line import/extensions, no-unused-vars
-const NotDelete = require('../utils/NotDelete');
-// eslint-disable-next-line import/no-unresolved, import/extensions, no-unused-vars
-const NotValidIdError = require('../utils/NotValidIdError.js');
-// eslint-disable-next-line import/extensions, no-unused-vars
-const NotFoundError = require('../utils/NotFoundError.js');
+const DeleteError = require('../utils/deleteError');
+const ValidationError = require('../utils/validationError');
+const NotFoundError = require('../utils/notFoundError');
 
 // eslint-disable-next-line consistent-return
 async function getCards(req, res, next) {
@@ -15,7 +12,6 @@ async function getCards(req, res, next) {
     const cards = await Card.find({});
     return res.send(cards);
   } catch (e) {
-    // eslint-disable-next-line no-undef
     next(e);
   }
 }
@@ -29,7 +25,7 @@ const createCard = async (req, res, next) => {
     return res.status(HttpCodes.create).send(newCard);
   } catch (e) {
     if (e.name === 'ValidationError') {
-      next(new NotValidIdError('Переданы не валидные данные'));
+      next(new ValidationError('Переданы не валидные данные'));
       // eslint-disable-next-line consistent-return
       return;
     }
@@ -52,18 +48,17 @@ const deleteCard = async (req, res, next) => {
             .then((card) => res.status(HttpCodes.success).send(card));
           // eslint-disable-next-line no-else-return
         } else {
-          return next(new NotDelete('У Вас нет прав на удаление данной карточки'));
+          return next(new DeleteError('У Вас нет прав на удаление данной карточки'));
         }
       });
   } catch (e) {
     if (e.name === 'NotFoundError') {
-      // eslint-disable-next-line no-undef
       next(new NotFoundError('Карточка по заданному ID не найдена'));
       // eslint-disable-next-line consistent-return
       return;
     }
     if (e.name === 'CastError') {
-      next(new NotValidIdError('Передан не валидный ID'));
+      next(new ValidationError('Передан не валидный ID'));
       // eslint-disable-next-line consistent-return
       return;
     }
@@ -84,13 +79,12 @@ const likeCard = async (req, res, next) => {
     return res.status(HttpCodes.success).send(like);
   } catch (e) {
     if (e.name === 'NotFoundError') {
-      // eslint-disable-next-line no-undef
       next(new NotFoundError('Карточка по заданному ID не найдена'));
       // eslint-disable-next-line consistent-return
       return;
     }
     if (e.name === 'CastError') {
-      next(new NotValidIdError('Передан не валидный ID'));
+      next(new ValidationError('Передан не валидный ID'));
       // eslint-disable-next-line consistent-return
       return;
     }
@@ -111,13 +105,12 @@ const disLikeCard = async (req, res, next) => {
     return res.status(HttpCodes.create).send(like);
   } catch (error) {
     if (error.name === 'NotFoundError') {
-      // eslint-disable-next-line no-undef
       next(new NotFoundError('Карточка по заданному ID не найдена'));
       // eslint-disable-next-line consistent-return
       return;
     }
     if (error.name === 'CastError') {
-      next(new NotValidIdError('Передан не валидный ID'));
+      next(new ValidationError('Передан не валидный ID'));
       // eslint-disable-next-line consistent-return
       return;
     }
