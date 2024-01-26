@@ -13,11 +13,11 @@ mongoose.connect('mongodb://localhost:27017/mestodb');
 app.use(json());
 app.use(router);
 app.use(errors());
+app.use(error);
 // eslint-disable-next-line no-unused-vars
-app.use('*', (err) => {
+app.use('', () => {
   throw new NotFoundError('Такой страницы не существует');
 });
-app.use(error);
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log(`Запущен порт: ${PORT}`);
