@@ -15,10 +15,9 @@ app.use(router);
 app.use(errors());
 app.use(error);
 // eslint-disable-next-line no-unused-vars
-app.use('', () => {
+app.use('*', () => {
   throw new NotFoundError('Такой страницы не существует');
 });
 app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
   console.log(`Запущен порт: ${PORT}`);
 });
